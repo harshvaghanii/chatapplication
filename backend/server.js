@@ -2,23 +2,18 @@ const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
-const mongoose = require("mongoose");
-const port = process.env.port;
+const port = process.env.port || 5000;
 const cors = require("cors");
-
+const connectDB = require("./database/connect");
 app.use(cors());
+const auth = require("./routes/authRoute");
+// Calling the connect database method
+connectDB();
 
-// DB Connection
-mongoose 
-    .connect(
-        process.env.MONGO_URL,
-        { useNewUrlParser: true, useUnifiedTopology: true },
-        mongoose.set("strictQuery", false)
-    )
-    .then(() => {
-        console.log("DB Connection Successful");
-    })
-    .catch((e) => console.log(e));
+app.use(express.json());
+
+// Configuring the end points
+app.use("/api/messenger/", auth);
 
 app.get("/", (req, res) => {
     res.send("Hello world!");

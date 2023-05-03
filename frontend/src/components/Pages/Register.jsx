@@ -1,20 +1,51 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { userRegister } from "../../store/actions/auth";
 
 const Register = () => {
-    const [userData, setUserDate] = useState({
+    const dispatch = useDispatch();
+    const [userData, setUserData] = useState({
         username: "",
         email: "",
         password: "",
         confirmPassword: "",
         image: "",
     });
+    const [loadImage, setLoadImage] = useState("");
 
     const inputHandler = (e) => {
-        setUserDate({
+        setUserData({
             ...userData,
             [e.target.name]: e.target.value,
         });
+    };
+
+    const fileHandler = (e) => {
+        if (e.target.files.length !== 0) {
+            setUserData({
+                ...userData,
+                [e.target.name]: e.target.files[0],
+            });
+        }
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            setLoadImage(reader.result);
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    const registerForm = (e) => {
+        e.preventDefault();
+        const { username, email, password, confirmPassword, image } = userData;
+        const formData = new FormData();
+        formData.append("username", username);
+        formData.append("email", email);
+        formData.append("password", password);
+        formData.append("confirmPassword", confirmPassword);
+        formData.append("image", image);
+        dispatch(userRegister(formData));
     };
 
     return (
@@ -25,7 +56,7 @@ const Register = () => {
                 </div>
 
                 <div className="card-body">
-                    <form>
+                    <form onSubmit={registerForm}>
                         <div className="form-group">
                             <label htmlFor="username">User Name</label>
                             <input
@@ -82,15 +113,22 @@ const Register = () => {
 
                         <div className="form-group">
                             <div className="file-image">
-                                <div className="image"></div>
+                                <div className="image">
+                                    {loadImage && (
+                                        <img
+                                            src={loadImage}
+                                            alt="Icon Avatar"
+                                        />
+                                    )}
+                                </div>
                                 <div className="file">
                                     <label htmlFor="image">Select Image</label>
                                     <input
                                         type="file"
+                                        onChange={fileHandler}
                                         className="form-control"
                                         id="image"
                                         name="image"
-                                        value={userData.image}
                                     />
                                 </div>
                             </div>
