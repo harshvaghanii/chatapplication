@@ -52,7 +52,7 @@ exports.registerController = (req, res) => {
                 if (duplicateUser) {
                     return res.status(404).json({
                         error: {
-                            errorMessage: "User already exists!",
+                            errorMessage: ["User already exists!"],
                         },
                     });
                 }

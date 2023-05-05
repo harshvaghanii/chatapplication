@@ -1,4 +1,9 @@
-import { REGISTER_FAIL, REGISTER_SUCCESS } from "../types/authTypes";
+import {
+    REGISTER_FAIL,
+    REGISTER_SUCCESS,
+    SUCCESS_MESSAGE_CLEAR,
+    ERROR_CLEAR,
+} from "../types/authTypes";
 import jwt_decode from "jwt-decode";
 const authState = {
     loading: true,
@@ -15,13 +20,27 @@ const tokenDecode = (token) => {
     return decodedToken;
 };
 
+const getToken = localStorage.getItem("authToken");
+if (getToken) {
+    const getInfo = tokenDecode(getToken);
+    if (getInfo) {
+        authState.myInfo = getInfo;
+        authState.authenticate = true;
+        authState.loading = false;
+    }
+}
+
 export const authReducer = (state = authState, action) => {
     const { payload, type } = action;
     switch (type) {
         case REGISTER_FAIL: {
             return {
                 ...state,
+                loading: true,
+                authenticate: false,
                 error: payload.error,
+                successMessage: "",
+                myInfo: "",
             };
         }
         case REGISTER_SUCCESS: {
@@ -30,8 +49,23 @@ export const authReducer = (state = authState, action) => {
                 ...state,
                 loading: false,
                 authenticate: true,
+                error: "",
                 successMessage: payload.successMessage,
                 myInfo,
+            };
+        }
+
+        case SUCCESS_MESSAGE_CLEAR: {
+            return {
+                ...state,
+                successMessage: "",
+            };
+        }
+
+        case ERROR_CLEAR: {
+            return {
+                ...state,
+                error: "",
             };
         }
 

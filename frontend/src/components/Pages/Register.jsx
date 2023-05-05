@@ -1,9 +1,20 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import {
+    SUCCESS_MESSAGE_CLEAR,
+    ERROR_CLEAR,
+} from "../../store/types/authTypes";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { userRegister } from "../../store/actions/auth";
+import { useAlert } from "react-alert";
 
 const Register = () => {
+    const navigate = useNavigate();
+
+    const alert = useAlert();
+
+    const { loading, authenticate, error, successMessage, myInfo } =
+        useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const [userData, setUserData] = useState({
         username: "",
@@ -47,6 +58,32 @@ const Register = () => {
         formData.append("image", image);
         dispatch(userRegister(formData));
     };
+
+    useEffect(() => {
+        if (authenticate) {
+            navigate("/");
+        }
+
+        if (successMessage) {
+            alert.success(successMessage);
+            setUserData({
+                username: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+                image: "",
+            });
+            dispatch({
+                type: SUCCESS_MESSAGE_CLEAR,
+            });
+        }
+        if (error) {
+            error.map((err) => alert.error(err));
+            dispatch({
+                type: ERROR_CLEAR,
+            });
+        }
+    }, [successMessage, error]);
 
     return (
         <div className="register">
