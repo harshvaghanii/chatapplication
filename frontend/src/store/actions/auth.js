@@ -54,7 +54,6 @@ export const userLogin = (data) => {
                 data,
                 config
             );
-            console.log(response);
             localStorage.setItem("authToken", response.data.token);
             dispatch({
                 type: LOGIN_SUCCESS,
