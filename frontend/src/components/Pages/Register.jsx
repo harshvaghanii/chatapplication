@@ -13,8 +13,9 @@ const Register = () => {
 
     const alert = useAlert();
 
-    const { loading, authenticate, error, successMessage, myInfo } =
-        useSelector((state) => state.auth);
+    const { authenticate, error, successMessage } = useSelector(
+        (state) => state.auth
+    );
     const dispatch = useDispatch();
     const [userData, setUserData] = useState({
         username: "",
@@ -83,7 +84,7 @@ const Register = () => {
                 type: ERROR_CLEAR,
             });
         }
-    }, [successMessage, error]);
+    }, [successMessage, error, authenticate, navigate, alert, dispatch]);
 
     return (
         <div className="register">

@@ -116,3 +116,79 @@ exports.registerController = (req, res) => {
         }
     });
 };
+
+exports.loginController = async (req, res) => {
+    const { email, password } = req.body;
+    const error = [];
+    if (!email) {
+        error.push("Please enter your email address");
+    }
+    if (!password) {
+        error.push("Please enter your password");
+    }
+
+    if (email && !validator.isEmail(email)) {
+        error.push("Please provide a valid email address!");
+    }
+
+    if (error.length > 0) {
+        res.status(400).json({
+            error: {
+                errorMessage: error,
+            },
+        });
+    } else {
+        try {
+            const user = await User.findOne({ email }).select("+password");
+
+            if (!user) {
+                return res.status(400).json({
+                    error: {
+                        errorMessage: ["Please provide valid credentials!"],
+                    },
+                });
+            }
+
+            const matchPassword = await bcrypt.compare(password, user.password);
+            if (!matchPassword) {
+                return res.status(400).json({
+                    error: {
+                        errorMessage: ["Please provide valid credentials!"],
+                    },
+                });
+            }
+
+            // If credentials entered by user are correct
+
+            const token = jwt.sign(
+                {
+                    id: user._id,
+                    email: user.email,
+                    username: user.username,
+                    image: user.image,
+                    registerTime: user.createdAt,
+                },
+                process.env.JWT_SEC,
+                { expiresIn: process.env.JWT_EXPIRE }
+            );
+
+            const options = {
+                expires: new Date(
+                    Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+                ),
+            };
+
+            res.status(200).cookie("authToken", token, options).json({
+                success: true,
+                message: "You have logged in successfully!",
+                token,
+            });
+        } catch {
+            res.status(400).json({
+                error: {
+                    errorMessage: ["Internal server error!"],
+                },
+            });
+        }
+    }
+};

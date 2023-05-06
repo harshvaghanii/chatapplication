@@ -7,13 +7,14 @@ const cors = require("cors");
 const connectDB = require("./database/connect");
 app.use(cors());
 const auth = require("./routes/authRoute");
+const cookieParser = require("cookie-parser");
 // Calling the connect database method
 connectDB();
 
 app.use(express.json());
-
+app.use(cookieParser());
 // Configuring the end points
-app.use("/api/messenger/", auth);
+app.use("/api/messenger", auth);
 
 app.get("/", (req, res) => {
     res.send("Hello world!");
