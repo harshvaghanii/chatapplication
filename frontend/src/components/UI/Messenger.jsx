@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaEllipsisH, FaEdit, FaSistrix } from "react-icons/fa";
 import ActiveFriend from "./ActiveFriend";
 import Friends from "./Friends";
 import RightSide from "./RightSide";
+import { getFriends } from "../../store/actions/messengerActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const Messenger = () => {
+    const dispatch = useDispatch();
+    const { authenticate } = useSelector((state) => state.auth);
+    useEffect(() => {
+        if (authenticate) dispatch(getFriends());
+    }, [dispatch]);
+
+    const { friends } = useSelector((state) => state.messenger);
+    const { myInfo } = useSelector((state) => state.auth);
+
     return (
         <div className="messenger">
             <div className="row">
@@ -14,12 +25,12 @@ const Messenger = () => {
                             <div className="image-name">
                                 <div className="image">
                                     <img
-                                        src="/images/harsh_vaghani.jpg"
+                                        src={`/images/${myInfo.image}`}
                                         alt="Display"
                                     />
                                 </div>
                                 <div className="name">
-                                    <h3> Hello Harsh! </h3>
+                                    <h3> Hello {myInfo.username} </h3>
                                 </div>
                             </div>
 
@@ -49,13 +60,21 @@ const Messenger = () => {
                             <ActiveFriend />
                         </div>
                         <div className="friends">
-                            <div className="hover-friend active">
-                                <Friends />
-                            </div>
-
-                            <div className="hover-friend">
-                                <Friends />
-                            </div>
+                            {friends.length > 0 &&
+                                friends.map((friend) => {
+                                    return (
+                                        <div
+                                            className="hover-friend"
+                                            key={friend.email}
+                                        >
+                                            <Friends
+                                                key={friend._id}
+                                                username={friend.username}
+                                                image={friend.image}
+                                            />
+                                        </div>
+                                    );
+                                })}
                         </div>
                     </div>
                 </div>

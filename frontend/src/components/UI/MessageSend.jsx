@@ -66,8 +66,7 @@ const MessageSend = () => {
 
                 <div className="file hover-gift">
                     <label htmlFor="emoji">
-                        {" "}
-                        <FaPaperPlane />{" "}
+                        <FaPaperPlane />
                     </label>
                 </div>
             </div>
@@ -77,7 +76,7 @@ const MessageSend = () => {
             <div className="emoji-section">
                 <div className="emoji">
                     {emojis.map((e) => (
-                        <span>{e}</span>
+                        <span key={Math.random() * 100}>{e}</span>
                     ))}
                 </div>
             </div>
