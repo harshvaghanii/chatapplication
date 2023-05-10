@@ -1,7 +1,12 @@
-import { FRIEND_GET_SUCCESS } from "../types/messengerTypes";
+import {
+    FRIEND_GET_SUCCESS,
+    GET_MESSAGE_SUCCESS,
+    SEND_MESSAGE_SUCCESS,
+} from "../types/messengerTypes";
 
 const messengerState = {
     friends: [],
+    messages: [],
 };
 
 export const messengerReducer = (state = messengerState, action) => {
@@ -13,6 +18,23 @@ export const messengerReducer = (state = messengerState, action) => {
                 friends: payload.friends,
             };
         }
+
+        case GET_MESSAGE_SUCCESS: {
+            return {
+                ...state,
+                messages: payload.message,
+            };
+        }
+
+        case SEND_MESSAGE_SUCCESS: {
+            return {
+                ...state,
+                messages: [...state.messages, payload.message],
+            };
+        }
+
+        default: {
+            return state;
+        }
     }
-    return state;
 };

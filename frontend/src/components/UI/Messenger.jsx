@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaEllipsisH, FaEdit, FaSistrix } from "react-icons/fa";
 import ActiveFriend from "./ActiveFriend";
 import Friends from "./Friends";
 import RightSide from "./RightSide";
-import { getFriends, messageSend } from "../../store/actions/messengerActions";
+import {
+    getFriends,
+    messageSend,
+    getMessage,
+} from "../../store/actions/messengerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const Messenger = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const scrollRef = useRef();
     const { authenticate } = useSelector((state) => state.auth);
-    const { friends } = useSelector((state) => state.messenger);
+    const { friends, messages } = useSelector((state) => state.messenger);
     const { myInfo } = useSelector((state) => state.auth);
 
     const [currentFriend, setCurrentFriend] = useState("");
@@ -40,10 +45,10 @@ const Messenger = () => {
     // Use effect to render friend list on left side
 
     useEffect(() => {
-        if (authenticate) dispatch(getFriends());
         if (!authenticate) {
             navigate("/messenger/login");
         }
+        if (authenticate) dispatch(getFriends());
     }, [dispatch, authenticate, navigate]);
 
     // Use effect to auto select the first friend from the left side
@@ -53,6 +58,21 @@ const Messenger = () => {
             setCurrentFriend(friends[0]);
         }
     }, [friends]);
+
+    // Use effect to fetch the messages of the logged in User
+
+    useEffect(() => {
+        if (currentFriend) dispatch(getMessage(currentFriend._id));
+    }, [currentFriend, currentFriend?._id, dispatch]);
+
+    // Use Effect to scroll to the bottom after a new message!
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+            // console.log(scrollRef.current);
+        }
+    }, [messages]);
 
     return (
         <div className="messenger">
@@ -130,6 +150,8 @@ const Messenger = () => {
                         inputHandler={inputHandler}
                         newMessage={newMessage}
                         sendMessage={sendMessage}
+                        messages={messages}
+                        scrollRef={scrollRef}
                     />
                 ) : (
                     "Please select a contact"

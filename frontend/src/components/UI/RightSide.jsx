@@ -9,6 +9,8 @@ const RightSide = ({
     newMessage,
     inputHandler,
     sendMessage,
+    messages,
+    scrollRef,
 }) => {
     return (
         <div className="col-9">
@@ -46,7 +48,11 @@ const RightSide = ({
                                     </div>
                                 </div>
                             </div>
-                            <Message />
+                            <Message
+                                messages={messages}
+                                currentFriend={currentFriend}
+                                scrollRef={scrollRef}
+                            />
                             <MessageSend
                                 newMessage={newMessage}
                                 inputHandler={inputHandler}

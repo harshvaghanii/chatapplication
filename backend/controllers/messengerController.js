@@ -42,3 +42,30 @@ exports.messageUploadDB = async (req, res) => {
         });
     }
 };
+
+exports.messageGet = async (req, res) => {
+    const friendId = req.params.id;
+    const myId = req.myId;
+
+    try {
+        let getAllMessages = await Message.find({});
+        getAllMessages = getAllMessages.filter((message) => {
+            return (
+                (message.senderId === myId &&
+                    message.receiverId === friendId) ||
+                (message.senderId === friendId && message.receiverId === myId)
+            );
+        });
+        res.status(200).json({
+            success: true,
+            message: getAllMessages,
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: {
+                errorMessage:
+                    "Internal Server Error while fetching friend Messages!",
+            },
+        });
+    }
+};
