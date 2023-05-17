@@ -33,7 +33,8 @@ exports.registerController = (req, res) => {
         } else {
             const getImageName = image.originalFilename;
             const randomNumber = Math.floor(Math.random() * 99999);
-            const newImageName = randomNumber + getImageName;
+            const newImageName =
+                randomNumber + getImageName.trim().replaceAll(/\s/g, "");
             const newPath = path.join(
                 __dirname,
                 "..",

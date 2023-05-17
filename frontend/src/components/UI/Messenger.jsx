@@ -7,6 +7,7 @@ import {
     getFriends,
     messageSend,
     getMessage,
+    imageMessageSend,
 } from "../../store/actions/messengerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,8 @@ const Messenger = () => {
         setNewMessage(e.target.value);
     };
 
+    // Functions for sending messages
+
     const sendMessage = (e) => {
         e.preventDefault();
 
@@ -40,6 +43,26 @@ const Messenger = () => {
         };
         dispatch(messageSend(data));
         setNewMessage("");
+    };
+
+    const emojiSend = (e) => {
+        setNewMessage((prevMessage) => `${prevMessage}${e}`);
+    };
+
+    const imageSend = (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const imageName = e.target.files[0].name;
+            const newImageName =
+                Date.now() + imageName.trim().replaceAll(/\s/g, "");
+
+            const formData = new FormData();
+            formData.append("senderName", myInfo.username);
+            formData.append("receiverId", currentFriend._id);
+            formData.append("image", e.target.files[0]);
+            formData.append("imagename", newImageName);
+
+            dispatch(imageMessageSend(formData));
+        }
     };
 
     // Use effect to render friend list on left side
@@ -152,6 +175,8 @@ const Messenger = () => {
                         sendMessage={sendMessage}
                         messages={messages}
                         scrollRef={scrollRef}
+                        emojiSend={emojiSend}
+                        imageSend={imageSend}
                     />
                 ) : (
                     "Please select a contact"

@@ -1,5 +1,8 @@
 const User = require("../models/user");
 const Message = require("../models/message");
+const formidable = require("formidable");
+const fs = require("fs");
+const path = require("path");
 exports.getFriends = async (req, res) => {
     try {
         const friends = await User.find({});
@@ -68,4 +71,53 @@ exports.messageGet = async (req, res) => {
             },
         });
     }
+};
+
+exports.imageMessageSend = async (req, res) => {
+    const form = formidable();
+    const senderId = req.myId;
+    form.parse(req, async (err, fields, files) => {
+        const { senderName, receiverId, imagename } = fields;
+        const newPath = path.join(
+            __dirname,
+            "..",
+            "..",
+            "frontend",
+            "public",
+            "images",
+            `${imagename}`
+        );
+        files.image.originalFilename = imagename;
+        try {
+            fs.copyFile(files.image.filepath, newPath, async (err) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: {
+                            errorMessage: "Image upload failed!",
+                        },
+                    });
+                }
+                const insertMessage = await Message.create({
+                    senderId,
+                    senderName,
+                    receiverId,
+                    message: {
+                        text: "",
+                        image: files.image.originalFilename,
+                    },
+                });
+
+                res.status(201).json({
+                    success: true,
+                    message: insertMessage,
+                });
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: {
+                    errorMessage: "Internal Server error!!",
+                },
+            });
+        }
+    });
 };

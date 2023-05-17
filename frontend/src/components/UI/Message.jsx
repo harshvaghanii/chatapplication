@@ -12,7 +12,14 @@ const Message = ({ messages, currentFriend, scrollRef }) => {
                             <div className="image-message">
                                 <div className="my-text">
                                     <p className="message-text">
-                                        {message.message.text}
+                                        {message.message.text === "" ? (
+                                            <img
+                                                src={`./images/${message.message.image}`}
+                                                alt="Sent"
+                                            />
+                                        ) : (
+                                            message.message.text
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -28,7 +35,14 @@ const Message = ({ messages, currentFriend, scrollRef }) => {
                                 <div className="message-time">
                                     <div className="fd-text">
                                         <p className="message-text">
-                                            {message.message.text}
+                                            {message.message.text === "" ? (
+                                                <img
+                                                    src={`./images/${message.message.image}`}
+                                                    alt="Sent"
+                                                />
+                                            ) : (
+                                                message.message.text
+                                            )}
                                         </p>
                                     </div>
                                     <div className="time">
