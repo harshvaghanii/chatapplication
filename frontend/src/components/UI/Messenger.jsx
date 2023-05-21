@@ -167,6 +167,7 @@ const Messenger = () => {
                                       <ActiveFriend
                                           user={user}
                                           key={user.userId}
+                                          setCurrentFriend={setCurrentFriend}
                                       />
                                   ))
                                 : ""}
@@ -209,6 +210,7 @@ const Messenger = () => {
                         scrollRef={scrollRef}
                         emojiSend={emojiSend}
                         imageSend={imageSend}
+                        activeUsers={activeUsers}
                     />
                 ) : (
                     "Please select a contact"

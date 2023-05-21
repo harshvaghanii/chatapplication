@@ -2,6 +2,7 @@
     display: flex;
     .active-friend {
         overflow: hidden;
+        cursor: pointer;
         .image-active-icon {
             overflow-x: scroll;
             display: flex;
