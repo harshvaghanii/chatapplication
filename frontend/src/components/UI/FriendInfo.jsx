@@ -36,10 +36,10 @@ const FriendInfo = ({ currentFriend }) => {
             </div>
 
             <div className="gallery">
+                {/* <img src="/images/harsh_vaghani.jpg" alt="" />
                 <img src="/images/harsh_vaghani.jpg" alt="" />
                 <img src="/images/harsh_vaghani.jpg" alt="" />
-                <img src="/images/harsh_vaghani.jpg" alt="" />
-                <img src="/images/harsh_vaghani.jpg" alt="" />
+                <img src="/images/harsh_vaghani.jpg" alt="" /> */}
             </div>
         </div>
     );

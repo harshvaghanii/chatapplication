@@ -11,11 +11,12 @@ import {
 } from "../../store/actions/messengerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import { io } from "socket.io-client";
 const Messenger = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const scrollRef = useRef();
+    const socket = useRef();
     const { authenticate } = useSelector((state) => state.auth);
     const { friends, messages } = useSelector((state) => state.messenger);
     const { myInfo } = useSelector((state) => state.auth);
@@ -26,7 +27,7 @@ const Messenger = () => {
     };
 
     const [newMessage, setNewMessage] = useState("");
-
+    const [activeUsers, setActiveUsers] = useState([]);
     const inputHandler = (e) => {
         setNewMessage(e.target.value);
     };
@@ -97,6 +98,29 @@ const Messenger = () => {
         }
     }, [messages]);
 
+    // Use effect to connect to the socket server
+
+    useEffect(() => {
+        socket.current = io("ws://localhost:8000");
+    }, []);
+
+    // Use effect to send data to the socket server
+
+    useEffect(() => {
+        socket.current.emit("addUser", myInfo.id, myInfo);
+    }, [myInfo]);
+
+    // Use effect to get the active users data from socket server
+
+    useEffect(() => {
+        socket.current.on("getUser", (users) => {
+            const filteredUsers = users.filter(
+                (user) => user.userId !== myInfo.id
+            );
+            setActiveUsers(filteredUsers);
+        });
+    }, [myInfo, activeUsers]);
+
     return (
         <div className="messenger">
             <div className="row">
@@ -138,8 +162,16 @@ const Messenger = () => {
                             </div>
                         </div>
                         <div className="active-friends">
-                            <ActiveFriend />
+                            {activeUsers && activeUsers.length > 0
+                                ? activeUsers.map((user) => (
+                                      <ActiveFriend
+                                          user={user}
+                                          key={user.userId}
+                                      />
+                                  ))
+                                : ""}
                         </div>
+
                         <div className="friends">
                             {friends.length > 0 &&
                                 friends.map((friend) => {

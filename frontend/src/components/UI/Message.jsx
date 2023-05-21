@@ -8,7 +8,11 @@ const Message = ({ messages, currentFriend, scrollRef }) => {
             {messages &&
                 messages.map((message) => {
                     return message.senderId === myInfo.id ? (
-                        <div className="my-message" ref={scrollRef}>
+                        <div
+                            className="my-message"
+                            ref={scrollRef}
+                            key={message._id}
+                        >
                             <div className="image-message">
                                 <div className="my-text">
                                     <p className="message-text">
@@ -26,7 +30,11 @@ const Message = ({ messages, currentFriend, scrollRef }) => {
                             <div className="time">{message.createdAt}</div>
                         </div>
                     ) : (
-                        <div className="fd-message" ref={scrollRef}>
+                        <div
+                            className="fd-message"
+                            ref={scrollRef}
+                            key={message._id}
+                        >
                             <div className="image-message-time">
                                 <img
                                     src={`/images/${currentFriend.image}`}
