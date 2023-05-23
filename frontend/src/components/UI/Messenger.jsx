@@ -12,6 +12,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { SOCKET_MESSAGE_SUCCESS } from "../../store/types/messengerTypes";
 const Messenger = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ const Messenger = () => {
     };
 
     const [newMessage, setNewMessage] = useState("");
+    const [socketMessage, setSocketMessage] = useState("");
     const [activeUsers, setActiveUsers] = useState([]);
     const inputHandler = (e) => {
         setNewMessage(e.target.value);
@@ -42,6 +44,18 @@ const Messenger = () => {
             receiverId: currentFriend._id,
             message: newMessage ? newMessage : "❤",
         };
+
+        socket.current.emit("sendMessage", {
+            senderId: myInfo.id,
+            senderName: myInfo.username,
+            receiverId: currentFriend._id,
+            time: new Date(),
+            message: {
+                text: newMessage ? newMessage : "❤",
+                image: "",
+            },
+        });
+
         dispatch(messageSend(data));
         setNewMessage("");
     };
@@ -102,6 +116,9 @@ const Messenger = () => {
 
     useEffect(() => {
         socket.current = io("ws://localhost:8000");
+        socket.current.on("getMessage", (data) => {
+            setSocketMessage(data);
+        });
     }, []);
 
     // Use effect to send data to the socket server
@@ -109,6 +126,25 @@ const Messenger = () => {
     useEffect(() => {
         socket.current.emit("addUser", myInfo.id, myInfo);
     }, [myInfo]);
+
+    // Use effect to load the messages in real time from socket
+
+    useEffect(() => {
+        if (socketMessage && currentFriend) {
+            if (
+                socketMessage.senderId === currentFriend._id &&
+                socketMessage.receiverId === myInfo.id
+            ) {
+                dispatch({
+                    type: SOCKET_MESSAGE_SUCCESS,
+                    payload: {
+                        message: socketMessage,
+                    },
+                });
+            }
+        }
+        setSocketMessage("");
+    }, [currentFriend, dispatch, myInfo.id, socketMessage]);
 
     // Use effect to get the active users data from socket server
 
