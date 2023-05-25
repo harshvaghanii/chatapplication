@@ -297,10 +297,8 @@ const Messenger = () => {
                                         >
                                             <Friends
                                                 key={friend.friendInfo._id}
-                                                username={
-                                                    friend.friendInfo.username
-                                                }
-                                                image={friend.friendInfo.image}
+                                                friends={friend}
+                                                myInfo={myInfo}
                                             />
                                         </div>
                                     );
