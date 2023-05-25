@@ -3,11 +3,66 @@ const Message = require("../models/message");
 const formidable = require("formidable");
 const fs = require("fs");
 const path = require("path");
+
+const getLastMessage = async (myId, friendId) => {
+    const message = await Message.findOne({
+        $or: [
+            {
+                $and: [
+                    {
+                        senderId: {
+                            $eq: myId,
+                        },
+                    },
+                    {
+                        receiverId: {
+                            $eq: friendId,
+                        },
+                    },
+                ],
+            },
+            {
+                $and: [
+                    {
+                        senderId: {
+                            $eq: friendId,
+                        },
+                        receiverId: {
+                            $eq: myId,
+                        },
+                    },
+                ],
+            },
+        ],
+    }).sort({
+        updatedAt: -1,
+    });
+    return message;
+};
+
 exports.getFriends = async (req, res) => {
+    const myId = req.myId;
+    let friend_messages = [];
     try {
-        const friends = await User.find({});
-        const filter = friends.filter((friend) => friend._id != req.myId);
-        res.status(200).json({ success: true, friends: filter });
+        const friends = await User.find({
+            _id: {
+                $ne: myId,
+            },
+        });
+        // const filter = friends.filter((friend) => friend._id != req.myId);
+
+        for (let i = 0; i < friends.length; i++) {
+            let lastMessage = await getLastMessage(myId, friends[i]._id);
+            friend_messages = [
+                ...friend_messages,
+                {
+                    friendInfo: friends[i],
+                    messageInfo: lastMessage,
+                },
+            ];
+        }
+
+        res.status(200).json({ success: true, friends: friend_messages });
     } catch (error) {
         res.status(500).json({
             error: {
@@ -51,14 +106,43 @@ exports.messageGet = async (req, res) => {
     const myId = req.myId;
 
     try {
-        let getAllMessages = await Message.find({});
-        getAllMessages = getAllMessages.filter((message) => {
-            return (
-                (message.senderId === myId &&
-                    message.receiverId === friendId) ||
-                (message.senderId === friendId && message.receiverId === myId)
-            );
+        let getAllMessages = await Message.find({
+            $or: [
+                {
+                    $and: [
+                        {
+                            senderId: {
+                                $eq: myId,
+                            },
+                        },
+                        {
+                            receiverId: {
+                                $eq: friendId,
+                            },
+                        },
+                    ],
+                },
+                {
+                    $and: [
+                        {
+                            senderId: {
+                                $eq: friendId,
+                            },
+                            receiverId: {
+                                $eq: myId,
+                            },
+                        },
+                    ],
+                },
+            ],
         });
+        // getAllMessages = getAllMessages.filter((message) => {
+        //     return (
+        //         (message.senderId === myId &&
+        //             message.receiverId === friendId) ||
+        //         (message.senderId === friendId && message.receiverId === myId)
+        //     );
+        // });
         res.status(200).json({
             success: true,
             message: getAllMessages,

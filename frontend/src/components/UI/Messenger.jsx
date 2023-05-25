@@ -13,6 +13,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { SOCKET_MESSAGE_SUCCESS } from "../../store/types/messengerTypes";
+import toast, { Toaster } from "react-hot-toast";
+import useSound from "use-sound";
+import notificationSound from "../../audio/notifications.mp3";
+// import messageSound from "../../audio/sendmessage.mp3";
+// End of imports
+
+// To-Do
+// 1. Trim the sendMessage sound
+
 const Messenger = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -30,8 +39,17 @@ const Messenger = () => {
     const [newMessage, setNewMessage] = useState("");
     const [socketMessage, setSocketMessage] = useState("");
     const [activeUsers, setActiveUsers] = useState([]);
+    const [userTyping, setUserTyping] = useState({});
+    const [playNotificationSound] = useSound(notificationSound);
+    // const [playMessageSound] = useSound(messageSound);
     const inputHandler = (e) => {
         setNewMessage(e.target.value);
+
+        socket.current.emit("typingMessage", {
+            senderId: myInfo.id,
+            receiverId: currentFriend._id,
+            message: e.target.value,
+        });
     };
 
     // Functions for sending messages
@@ -56,12 +74,24 @@ const Messenger = () => {
             },
         });
 
+        socket.current.emit("typingMessage", {
+            senderId: myInfo.id,
+            receiverId: currentFriend._id,
+            message: "",
+        });
+        // playMessageSound();
         dispatch(messageSend(data));
         setNewMessage("");
     };
 
     const emojiSend = (e) => {
         setNewMessage((prevMessage) => `${prevMessage}${e}`);
+        socket.current.emit("typingMessage", {
+            senderId: myInfo.id,
+            receiverId: currentFriend._id,
+            message: e,
+        });
+        // playMessageSound();
     };
 
     const imageSend = (e) => {
@@ -70,12 +100,23 @@ const Messenger = () => {
             const newImageName =
                 Date.now() + imageName.trim().replaceAll(/\s/g, "");
 
+            socket.current.emit("sendMessage", {
+                senderId: myInfo.id,
+                senderName: myInfo.username,
+                receiverId: currentFriend._id,
+                time: new Date(),
+                message: {
+                    text: "",
+                    image: newImageName,
+                },
+            });
+
             const formData = new FormData();
             formData.append("senderName", myInfo.username);
             formData.append("receiverId", currentFriend._id);
             formData.append("image", e.target.files[0]);
             formData.append("imagename", newImageName);
-
+            // playMessageSound();
             dispatch(imageMessageSend(formData));
         }
     };
@@ -93,7 +134,7 @@ const Messenger = () => {
 
     useEffect(() => {
         if (friends && friends.length > 0) {
-            setCurrentFriend(friends[0]);
+            setCurrentFriend(friends[0].friendInfo);
         }
     }, [friends]);
 
@@ -118,6 +159,10 @@ const Messenger = () => {
         socket.current = io("ws://localhost:8000");
         socket.current.on("getMessage", (data) => {
             setSocketMessage(data);
+        });
+
+        socket.current.on("getTypingMessage", (data) => {
+            setUserTyping(data);
         });
     }, []);
 
@@ -157,8 +202,31 @@ const Messenger = () => {
         });
     }, [myInfo, activeUsers]);
 
+    // Use effect to display React Toast Notifications
+
+    useEffect(() => {
+        if (
+            socketMessage &&
+            socketMessage.senderId !== currentFriend._id &&
+            socketMessage.receiverId === myInfo.id
+        ) {
+            playNotificationSound();
+            toast.success(`${socketMessage.senderName} sent a Message!`);
+        }
+    }, [currentFriend._id, myInfo.id, socketMessage, playNotificationSound]);
+
     return (
         <div className="messenger">
+            <Toaster
+                position={"top-right"}
+                reverseOrder={false}
+                toastOptions={{
+                    style: {
+                        fontSize: "18px",
+                    },
+                }}
+            />
+
             <div className="row">
                 <div className="col-3">
                     <div className="left-side">
@@ -215,19 +283,24 @@ const Messenger = () => {
                                     return (
                                         <div
                                             className={
-                                                currentFriend._id === friend._id
+                                                currentFriend._id ===
+                                                friend.friendInfo._id
                                                     ? "hover-friend active"
-                                                    : "hover-friend "
+                                                    : "hover-friend"
                                             }
-                                            key={friend.email}
+                                            key={friend.friendInfo.email}
                                             onClick={() => {
-                                                friendHandler(friend);
+                                                friendHandler(
+                                                    friend.friendInfo
+                                                );
                                             }}
                                         >
                                             <Friends
-                                                key={friend._id}
-                                                username={friend.username}
-                                                image={friend.image}
+                                                key={friend.friendInfo._id}
+                                                username={
+                                                    friend.friendInfo.username
+                                                }
+                                                image={friend.friendInfo.image}
                                             />
                                         </div>
                                     );
@@ -247,6 +320,7 @@ const Messenger = () => {
                         emojiSend={emojiSend}
                         imageSend={imageSend}
                         activeUsers={activeUsers}
+                        userTyping={userTyping}
                     />
                 ) : (
                     "Please select a contact"

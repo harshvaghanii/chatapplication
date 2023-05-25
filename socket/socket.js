@@ -45,6 +45,17 @@ io.on("connection", (socket) => {
         });
     });
 
+    socket.on("typingMessage", (data) => {
+        const { senderId, receiverId, message } = data;
+        const user = isActiveFriend(data.receiverId);
+        if (!user) return;
+        socket.to(user.socketId).emit("getTypingMessage", {
+            senderId,
+            receiverId,
+            message,
+        });
+    });
+
     socket.on("disconnect", () => {
         removeUser(socket.id);
         io.emit("getUser", users);
