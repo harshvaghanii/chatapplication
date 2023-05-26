@@ -1,5 +1,6 @@
 import React from "react";
 import moment from "moment";
+import { FaRegCheckCircle } from "react-icons/fa";
 const Friends = (props) => {
     const { friendInfo, messageInfo } = props.friends;
     const { username, image } = friendInfo;
@@ -40,7 +41,15 @@ const Friends = (props) => {
                 </div>
                 {myInfo.id === messageInfo?.senderId ? (
                     <div className="seen-unseen-icon">
-                        <img src={`/images/${image}`} alt="" />
+                        {messageInfo.status === "seen" ? (
+                            <img src={`/images/${image}`} alt="" />
+                        ) : messageInfo.status === "delivered" ? (
+                            <div className="delivared">
+                                <FaRegCheckCircle />
+                            </div>
+                        ) : (
+                            <div className="unseen"></div>
+                        )}
                     </div>
                 ) : (
                     <div className="seen-unseen-icon">

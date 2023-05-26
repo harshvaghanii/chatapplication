@@ -33,16 +33,10 @@ io.on("connection", (socket) => {
     });
 
     socket.on("sendMessage", (data) => {
-        const { senderId, senderName, receiverId, time, message } = data;
+        const { receiverId } = data;
         const user = isActiveFriend(receiverId);
         if (!user) return;
-        socket.to(user.socketId).emit("getMessage", {
-            senderId,
-            senderName,
-            receiverId,
-            createdAt: time,
-            message,
-        });
+        socket.to(user.socketId).emit("getMessage", data);
     });
 
     socket.on("typingMessage", (data) => {

@@ -77,3 +77,9 @@ export const imageMessageSend = (data) => {
         }
     };
 };
+
+export const seenMessage = (data) => {
+    return async (dispatch) => {
+        console.log(data);
+    };
+};

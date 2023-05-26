@@ -8,11 +8,16 @@ import {
     messageSend,
     getMessage,
     imageMessageSend,
+    seenMessage,
 } from "../../store/actions/messengerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { SOCKET_MESSAGE_SUCCESS } from "../../store/types/messengerTypes";
+import {
+    SOCKET_MESSAGE_SUCCESS,
+    UPDATE_FRIEND_MESSAGE,
+    MESSAGE_SEND_SUCCESS_CLEAR,
+} from "../../store/types/messengerTypes";
 import toast, { Toaster } from "react-hot-toast";
 import useSound from "use-sound";
 import notificationSound from "../../audio/notifications.mp3";
@@ -28,7 +33,9 @@ const Messenger = () => {
     const scrollRef = useRef();
     const socket = useRef();
     const { authenticate } = useSelector((state) => state.auth);
-    const { friends, messages } = useSelector((state) => state.messenger);
+    const { friends, messages, messageSendSuccess } = useSelector(
+        (state) => state.messenger
+    );
     const { myInfo } = useSelector((state) => state.auth);
 
     const [currentFriend, setCurrentFriend] = useState("");
@@ -62,17 +69,6 @@ const Messenger = () => {
             receiverId: currentFriend._id,
             message: newMessage ? newMessage : "❤",
         };
-
-        socket.current.emit("sendMessage", {
-            senderId: myInfo.id,
-            senderName: myInfo.username,
-            receiverId: currentFriend._id,
-            time: new Date(),
-            message: {
-                text: newMessage ? newMessage : "❤",
-                image: "",
-            },
-        });
 
         socket.current.emit("typingMessage", {
             senderId: myInfo.id,
@@ -120,6 +116,23 @@ const Messenger = () => {
             dispatch(imageMessageSend(formData));
         }
     };
+
+    // Use effect to send the message, store it to data base and then update the status of the message
+
+    useEffect(() => {
+        if (messageSendSuccess) {
+            socket.current.emit("sendMessage", messages[messages.length - 1]);
+            dispatch({
+                type: UPDATE_FRIEND_MESSAGE,
+                payload: {
+                    messageInfo: messages[messages.length - 1],
+                },
+            });
+            dispatch({
+                type: MESSAGE_SEND_SUCCESS_CLEAR,
+            });
+        }
+    }, [messageSendSuccess, messages, dispatch]);
 
     // Use effect to render friend list on left side
 
@@ -175,17 +188,26 @@ const Messenger = () => {
     // Use effect to load the messages in real time from socket
 
     useEffect(() => {
-        if (socketMessage && currentFriend) {
-            if (
-                socketMessage.senderId === currentFriend._id &&
-                socketMessage.receiverId === myInfo.id
-            ) {
-                dispatch({
-                    type: SOCKET_MESSAGE_SUCCESS,
-                    payload: {
-                        message: socketMessage,
-                    },
-                });
+        if (socketMessage) {
+            dispatch({
+                type: UPDATE_FRIEND_MESSAGE,
+                payload: {
+                    messageInfo: socketMessage,
+                },
+            });
+            dispatch(seenMessage(socketMessage));
+            if (currentFriend) {
+                if (
+                    socketMessage.senderId === currentFriend._id &&
+                    socketMessage.receiverId === myInfo.id
+                ) {
+                    dispatch({
+                        type: SOCKET_MESSAGE_SUCCESS,
+                        payload: {
+                            message: socketMessage,
+                        },
+                    });
+                }
             }
         }
         setSocketMessage("");
