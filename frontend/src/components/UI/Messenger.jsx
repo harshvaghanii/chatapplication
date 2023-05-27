@@ -9,6 +9,7 @@ import {
     getMessage,
     imageMessageSend,
     seenMessage,
+    updateMessage,
 } from "../../store/actions/messengerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -17,10 +18,14 @@ import {
     SOCKET_MESSAGE_SUCCESS,
     UPDATE_FRIEND_MESSAGE,
     MESSAGE_SEND_SUCCESS_CLEAR,
+    SEEN_MESSAGE,
+    DELIVERED_MESSAGE,
+    SEEN_ALL,
 } from "../../store/types/messengerTypes";
 import toast, { Toaster } from "react-hot-toast";
 import useSound from "use-sound";
 import notificationSound from "../../audio/notifications.mp3";
+import { MESSAGE_GET_SUCCESS_CLEAR, UPDATE } from "../../store/types/authTypes";
 // import messageSound from "../../audio/sendmessage.mp3";
 // End of imports
 
@@ -33,9 +38,8 @@ const Messenger = () => {
     const scrollRef = useRef();
     const socket = useRef();
     const { authenticate } = useSelector((state) => state.auth);
-    const { friends, messages, messageSendSuccess } = useSelector(
-        (state) => state.messenger
-    );
+    const { friends, messages, messageSendSuccess, message_get_success } =
+        useSelector((state) => state.messenger);
     const { myInfo } = useSelector((state) => state.auth);
 
     const [currentFriend, setCurrentFriend] = useState("");
@@ -155,7 +159,39 @@ const Messenger = () => {
 
     useEffect(() => {
         if (currentFriend) dispatch(getMessage(currentFriend._id));
-    }, [currentFriend, currentFriend?._id, dispatch]);
+
+        if (friends.length > 0) {
+        }
+    }, [currentFriend, currentFriend?._id, dispatch, friends.length]);
+
+    useEffect(() => {
+        if (messages.length > 0) {
+            if (
+                messages[messages.length - 1].senderId !== myInfo.id &&
+                messages[messages.length - 1].status !== "seen"
+            ) {
+                dispatch({
+                    type: UPDATE,
+                    payload: {
+                        id: currentFriend._id,
+                    },
+                });
+                socket.current.emit("seen", {
+                    senderId: currentFriend._id,
+                    receiverId: myInfo.id,
+                });
+                dispatch(
+                    seenMessage({
+                        _id: messages[messages.length - 1]._id,
+                    })
+                );
+            }
+        }
+
+        dispatch({
+            type: MESSAGE_GET_SUCCESS_CLEAR,
+        });
+    }, [message_get_success, dispatch, messages, myInfo.id]);
 
     // Use Effect to scroll to the bottom after a new message!
 
@@ -177,7 +213,32 @@ const Messenger = () => {
         socket.current.on("getTypingMessage", (data) => {
             setUserTyping(data);
         });
-    }, []);
+
+        socket.current.on("msgSeenResponse", (msg) => {
+            dispatch({
+                type: SEEN_MESSAGE,
+                payload: {
+                    messageInfo: msg,
+                },
+            });
+        });
+
+        socket.current.on("msgDeliveredResponse", (msg) => {
+            dispatch({
+                type: DELIVERED_MESSAGE,
+                payload: {
+                    messageInfo: msg,
+                },
+            });
+        });
+
+        socket.current.on("seenSuccess", (data) => {
+            dispatch({
+                type: SEEN_ALL,
+                payload: data,
+            });
+        });
+    }, [dispatch]);
 
     // Use effect to send data to the socket server
 
@@ -193,9 +254,9 @@ const Messenger = () => {
                 type: UPDATE_FRIEND_MESSAGE,
                 payload: {
                     messageInfo: socketMessage,
+                    status: "seen",
                 },
             });
-            dispatch(seenMessage(socketMessage));
             if (currentFriend) {
                 if (
                     socketMessage.senderId === currentFriend._id &&
@@ -207,6 +268,8 @@ const Messenger = () => {
                             message: socketMessage,
                         },
                     });
+                    dispatch(seenMessage(socketMessage));
+                    socket.current.emit("seenMessage", socketMessage);
                 }
             }
         }
@@ -234,8 +297,23 @@ const Messenger = () => {
         ) {
             playNotificationSound();
             toast.success(`${socketMessage.senderName} sent a Message!`);
+            dispatch(updateMessage(socketMessage));
+            socket.current.emit("deliveredMessage", socketMessage);
+            dispatch({
+                type: UPDATE_FRIEND_MESSAGE,
+                payload: {
+                    messageInfo: socketMessage,
+                    status: "delivered",
+                },
+            });
         }
-    }, [currentFriend._id, myInfo.id, socketMessage, playNotificationSound]);
+    }, [
+        currentFriend._id,
+        myInfo.id,
+        socketMessage,
+        playNotificationSound,
+        dispatch,
+    ]);
 
     return (
         <div className="messenger">

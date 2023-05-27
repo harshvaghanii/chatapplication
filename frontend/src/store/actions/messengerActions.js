@@ -78,8 +78,28 @@ export const imageMessageSend = (data) => {
     };
 };
 
-export const seenMessage = (data) => {
+export const seenMessage = (message) => {
     return async (dispatch) => {
-        console.log(data);
+        try {
+            const response = await axios.post(
+                "/api/messenger/seen-message",
+                message
+            );
+        } catch (error) {
+            console.log(error.response.message);
+        }
+    };
+};
+
+export const updateMessage = (message) => {
+    return async (dispatch) => {
+        try {
+            const response = await axios.post(
+                "/api/messenger/update-message",
+                message
+            );
+        } catch (error) {
+            console.log(error.response.message);
+        }
     };
 };

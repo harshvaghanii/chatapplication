@@ -205,3 +205,41 @@ exports.imageMessageSend = async (req, res) => {
         }
     });
 };
+
+exports.setMessageToSeen = async (req, res) => {
+    try {
+        const messageId = req.body._id;
+        await Message.findByIdAndUpdate(messageId, {
+            status: "seen",
+        });
+        res.status(200).json({
+            success: true,
+            message: "Message status set to Delivered!",
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: {
+                errorMessage: "Internal Server Error!",
+            },
+        });
+    }
+};
+
+exports.setMessageToDelivered = async (req, res) => {
+    try {
+        const messageId = req.body._id;
+        await Message.findByIdAndUpdate(messageId, {
+            status: "delivered",
+        });
+        res.status(200).json({
+            success: true,
+            message: "Message status set to Delivered!",
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: {
+                errorMessage: "Internal Server Error!",
+            },
+        });
+    }
+};

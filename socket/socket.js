@@ -39,6 +39,24 @@ io.on("connection", (socket) => {
         socket.to(user.socketId).emit("getMessage", data);
     });
 
+    socket.on("seenMessage", (msg) => {
+        const user = isActiveFriend(msg.senderId);
+        if (!user) return;
+        socket.to(user.socketId).emit("msgSeenResponse", msg);
+    });
+
+    socket.on("deliveredMessage", (msg) => {
+        const user = isActiveFriend(msg.senderId);
+        if (!user) return;
+        socket.to(user.socketId).emit("msgDeliveredResponse", msg);
+    });
+
+    socket.on("seen", (data) => {
+        const user = isActiveFriend(data.senderId);
+        if (!user) return;
+        socket.to(user.socketId).emit("seenSuccess", data);
+    });
+
     socket.on("typingMessage", (data) => {
         const { senderId, receiverId, message } = data;
         const user = isActiveFriend(data.receiverId);
