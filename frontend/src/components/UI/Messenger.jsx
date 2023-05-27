@@ -191,7 +191,7 @@ const Messenger = () => {
         dispatch({
             type: MESSAGE_GET_SUCCESS_CLEAR,
         });
-    }, [message_get_success, dispatch, messages, myInfo.id]);
+    }, [message_get_success, dispatch, messages, myInfo.id, currentFriend._id]);
 
     // Use Effect to scroll to the bottom after a new message!
 
@@ -365,7 +365,7 @@ const Messenger = () => {
                                 />
                             </div>
                         </div>
-                        <div className="active-friends">
+                        {/* <div className="active-friends">
                             {activeUsers && activeUsers.length > 0
                                 ? activeUsers.map((user) => (
                                       <ActiveFriend
@@ -375,7 +375,7 @@ const Messenger = () => {
                                       />
                                   ))
                                 : ""}
-                        </div>
+                        </div> */}
 
                         <div className="friends">
                             {friends.length > 0 &&
@@ -399,6 +399,7 @@ const Messenger = () => {
                                                 key={friend.friendInfo._id}
                                                 friends={friend}
                                                 myInfo={myInfo}
+                                                activeUsers={activeUsers}
                                             />
                                         </div>
                                     );

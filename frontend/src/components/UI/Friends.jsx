@@ -5,11 +5,17 @@ const Friends = (props) => {
     const { friendInfo, messageInfo } = props.friends;
     const { username, image } = friendInfo;
     const myInfo = props.myInfo;
+    const { activeUsers } = props;
     return (
         <div className="friend">
             <div className="friend-image">
                 <div className="image">
                     <img src={`/images/${image}`} alt="Display" />
+                    {activeUsers &&
+                        activeUsers.length > 0 &&
+                        activeUsers.some(
+                            (user) => user.userId === friendInfo._id
+                        ) && <div className="active_icon"></div>}
                 </div>
             </div>
 
@@ -37,6 +43,7 @@ const Friends = (props) => {
                                     .startOf("mini")
                                     .fromNow()}
                         </span>
+                        {!messageInfo && <></>}
                     </div>
                 </div>
                 {myInfo.id === messageInfo?.senderId ? (

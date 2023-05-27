@@ -1,11 +1,23 @@
 import React, { Fragment } from "react";
 import { useSelector } from "react-redux";
-
+import moment from "moment";
 const Message = ({ messages, currentFriend, scrollRef, userTyping }) => {
     const { myInfo } = useSelector((state) => state.auth);
     return (
         <Fragment>
             <div className="message-show">
+                {messages.length === 0 && (
+                    <div className="friend_connect">
+                        <img src={`/images/${currentFriend.image}`} alt="" />
+                        <h3>{currentFriend.username} joined!</h3>
+                        <span>
+                            {moment(currentFriend.createdAt)
+                                .startOf("mini")
+                                .fromNow()}
+                        </span>
+                    </div>
+                )}
+
                 {messages &&
                     messages.map((message) => {
                         return message.senderId === myInfo.id ? (
@@ -28,7 +40,12 @@ const Message = ({ messages, currentFriend, scrollRef, userTyping }) => {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="time">{message.createdAt}</div>
+                                {/* <div className="time">{message.createdAt}</div> */}
+                                <div className="time">
+                                    {moment(message.createdAt)
+                                        .startOf("mini")
+                                        .fromNow()}
+                                </div>
                             </div>
                         ) : (
                             <div
@@ -55,7 +72,9 @@ const Message = ({ messages, currentFriend, scrollRef, userTyping }) => {
                                             </p>
                                         </div>
                                         <div className="time">
-                                            {message.createdAt}
+                                            {moment(message.createdAt)
+                                                .startOf("mini")
+                                                .fromNow()}
                                         </div>
                                     </div>
                                 </div>

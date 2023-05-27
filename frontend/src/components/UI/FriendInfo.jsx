@@ -16,7 +16,7 @@ const FriendInfo = ({ currentFriend, activeUsers }) => {
                 ) ? (
                     <div className="active-user">Active</div>
                 ) : (
-                    <></>
+                    <>Away</>
                 )}
 
                 <div className="name">
