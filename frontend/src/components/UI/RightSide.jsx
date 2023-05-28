@@ -1,5 +1,5 @@
 import React from "react";
-import { FaPhoneAlt, FaVideo, FaRocketchat } from "react-icons/fa";
+import { FaRocketchat } from "react-icons/fa";
 import Message from "./Message";
 import MessageSend from "./MessageSend";
 import FriendInfo from "./FriendInfo";
@@ -49,13 +49,13 @@ const RightSide = ({
                                 </div>
 
                                 <div className="icons">
-                                    <div className="icon">
+                                    {/* <div className="icon">
                                         <FaPhoneAlt />
                                     </div>
 
                                     <div className="icon">
                                         <FaVideo />
-                                    </div>
+                                    </div> */}
 
                                     <div className="icon">
                                         <label htmlFor="dot">
@@ -83,6 +83,7 @@ const RightSide = ({
                         <FriendInfo
                             currentFriend={currentFriend}
                             activeUsers={activeUsers}
+                            messages={messages}
                         />
                     </div>
                 </div>

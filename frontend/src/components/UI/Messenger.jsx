@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaEllipsisH, FaEdit, FaSistrix, FaSignOutAlt } from "react-icons/fa";
+import { FaEllipsisH, FaSistrix, FaSignOutAlt } from "react-icons/fa";
 // import ActiveFriend from "./ActiveFriend";
 import Friends from "./Friends";
 import RightSide from "./RightSide";
@@ -10,6 +10,8 @@ import {
     imageMessageSend,
     seenMessage,
     updateMessage,
+    setTheme,
+    getTheme,
 } from "../../store/actions/messengerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -38,11 +40,14 @@ const Messenger = () => {
     const navigate = useNavigate();
     const scrollRef = useRef();
     const socket = useRef();
-    const { authenticate } = useSelector((state) => state.auth);
-    const { friends, messages, messageSendSuccess, message_get_success } =
-        useSelector((state) => state.messenger);
-    const { myInfo } = useSelector((state) => state.auth);
-
+    const { authenticate, myInfo } = useSelector((state) => state.auth);
+    const {
+        friends,
+        messages,
+        messageSendSuccess,
+        message_get_success,
+        themeMode,
+    } = useSelector((state) => state.messenger);
     const [currentFriend, setCurrentFriend] = useState("");
     const friendHandler = (friend) => {
         setCurrentFriend(friend);
@@ -120,6 +125,26 @@ const Messenger = () => {
             formData.append("imagename", newImageName);
             // playMessageSound();
             dispatch(imageMessageSend(formData));
+        }
+    };
+
+    // Function to handle search
+
+    const searchHandler = (event) => {
+        const getFriendClass = document.getElementsByClassName("hover-friend");
+        const friendNameClass = document.getElementsByClassName("Fd_name");
+
+        for (
+            let i = 0;
+            i < getFriendClass.length, i < friendNameClass.length;
+            i++
+        ) {
+            let text = friendNameClass[i].innerText.toLowerCase();
+            if (text.indexOf(event.target.value.toLowerCase()) !== -1) {
+                getFriendClass[i].style.display = "";
+            } else {
+                getFriendClass[i].style.display = "none";
+            }
         }
     };
 
@@ -321,8 +346,14 @@ const Messenger = () => {
         dispatch,
     ]);
 
+    // Use effect to set the theme
+
+    useEffect(() => {
+        dispatch(getTheme());
+    }, [dispatch, themeMode]);
+
     return (
-        <div className="messenger">
+        <div className={themeMode === "dark" ? "messenger theme" : "messenger"}>
             <Toaster
                 position={"top-right"}
                 reverseOrder={false}
@@ -358,9 +389,9 @@ const Messenger = () => {
                                 >
                                     <FaEllipsisH />
                                 </div>
-                                <div className="icon">
+                                {/* <div className="icon">
                                     <FaEdit />
-                                </div>
+                                </div> */}
 
                                 <div
                                     className={
@@ -373,6 +404,11 @@ const Messenger = () => {
                                     <div className="on">
                                         <label htmlFor="dark">ON</label>
                                         <input
+                                            onChange={(e) => {
+                                                dispatch(
+                                                    setTheme(e.target.value)
+                                                );
+                                            }}
                                             type="radio"
                                             value="dark"
                                             name="theme"
@@ -382,6 +418,11 @@ const Messenger = () => {
                                     <div className="of">
                                         <label htmlFor="white">OFF</label>
                                         <input
+                                            onChange={(e) => {
+                                                dispatch(
+                                                    setTheme(e.target.value)
+                                                );
+                                            }}
                                             type="radio"
                                             value="white"
                                             name="theme"
@@ -405,6 +446,7 @@ const Messenger = () => {
                                     <FaSistrix />
                                 </button>
                                 <input
+                                    onChange={searchHandler}
                                     type="text"
                                     placeholder="Search"
                                     className="form-control"

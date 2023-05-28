@@ -1,7 +1,8 @@
 .friends {
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
+    // background-color: #ffffff;
+    background-color: var(--border-color);
     height: 100%;
     overflow-y: auto;
     &::-webkit-scrollbar {
@@ -9,6 +10,7 @@
     }
     .hover-friend.active {
         background-color: var(--active-color);
+        // background-color: var(--search-bg);
     }
     .hover-friend {
         cursor: pointer;

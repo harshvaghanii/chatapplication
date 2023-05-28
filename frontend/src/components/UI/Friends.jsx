@@ -26,8 +26,8 @@ const Friends = (props) => {
                             messageInfo?.senderId !== myInfo.id &&
                             messageInfo?.status !== undefined &&
                             messageInfo?.status !== "seen"
-                                ? "unseen_message"
-                                : ""
+                                ? "unseen_message Fd_name"
+                                : "Fd_name"
                         }
                     >
                         {username}

@@ -2,7 +2,9 @@ import axios from "axios";
 import {
     FRIEND_GET_SUCCESS,
     GET_MESSAGE_SUCCESS,
+    GET_THEME_SUCCESS,
     SEND_MESSAGE_SUCCESS,
+    SET_THEME_SUCCESS,
 } from "../types/messengerTypes";
 
 export const getFriends = () => {
@@ -101,5 +103,29 @@ export const updateMessage = (message) => {
         } catch (error) {
             console.log(error.response.message);
         }
+    };
+};
+
+export const setTheme = (theme) => {
+    return async (dispatch) => {
+        localStorage.setItem("theme", theme);
+        dispatch({
+            type: SET_THEME_SUCCESS,
+            payload: {
+                theme,
+            },
+        });
+    };
+};
+
+export const getTheme = () => {
+    return async (dispatch) => {
+        const theme = localStorage.getItem("theme");
+        dispatch({
+            type: GET_THEME_SUCCESS,
+            payload: {
+                theme: theme ? theme : "white",
+            },
+        });
     };
 };
