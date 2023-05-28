@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaEllipsisH, FaEdit, FaSistrix } from "react-icons/fa";
-import ActiveFriend from "./ActiveFriend";
+import { FaEllipsisH, FaEdit, FaSistrix, FaSignOutAlt } from "react-icons/fa";
+// import ActiveFriend from "./ActiveFriend";
 import Friends from "./Friends";
 import RightSide from "./RightSide";
 import {
@@ -26,6 +26,7 @@ import toast, { Toaster } from "react-hot-toast";
 import useSound from "use-sound";
 import notificationSound from "../../audio/notifications.mp3";
 import { MESSAGE_GET_SUCCESS_CLEAR, UPDATE } from "../../store/types/authTypes";
+import { userLogout } from "../../store/actions/auth";
 // import messageSound from "../../audio/sendmessage.mp3";
 // End of imports
 
@@ -51,6 +52,7 @@ const Messenger = () => {
     const [socketMessage, setSocketMessage] = useState("");
     const [activeUsers, setActiveUsers] = useState([]);
     const [userTyping, setUserTyping] = useState({});
+    const [hide, setHide] = useState(true);
     const [playNotificationSound] = useSound(notificationSound);
     // const [playMessageSound] = useSound(messageSound);
     const inputHandler = (e) => {
@@ -121,6 +123,13 @@ const Messenger = () => {
         }
     };
 
+    // Function to handle logout functionality
+
+    const logoutHandler = (e) => {
+        dispatch(userLogout());
+        socket.current.emit("logout", myInfo.id);
+    };
+
     // Use effect to send the message, store it to data base and then update the status of the message
 
     useEffect(() => {
@@ -141,9 +150,6 @@ const Messenger = () => {
     // Use effect to render friend list on left side
 
     useEffect(() => {
-        // if (!authenticate) {
-        //     navigate("/messenger/login");
-        // }
         if (authenticate) dispatch(getFriends());
     }, [dispatch, authenticate, navigate]);
 
@@ -344,11 +350,51 @@ const Messenger = () => {
                             </div>
 
                             <div className="icons">
-                                <div className="icon">
+                                <div
+                                    className="icon"
+                                    onClick={() => {
+                                        setHide((prevValue) => !prevValue);
+                                    }}
+                                >
                                     <FaEllipsisH />
                                 </div>
                                 <div className="icon">
                                     <FaEdit />
+                                </div>
+
+                                <div
+                                    className={
+                                        hide
+                                            ? "theme_logout"
+                                            : "theme_logout show"
+                                    }
+                                >
+                                    <h3>Dark Mode</h3>
+                                    <div className="on">
+                                        <label htmlFor="dark">ON</label>
+                                        <input
+                                            type="radio"
+                                            value="dark"
+                                            name="theme"
+                                            id="dark"
+                                        />
+                                    </div>
+                                    <div className="of">
+                                        <label htmlFor="white">OFF</label>
+                                        <input
+                                            type="radio"
+                                            value="white"
+                                            name="theme"
+                                            id="white"
+                                        />
+                                    </div>
+
+                                    <div
+                                        className="logout"
+                                        onClick={logoutHandler}
+                                    >
+                                        <FaSignOutAlt /> Logout
+                                    </div>
                                 </div>
                             </div>
                         </div>

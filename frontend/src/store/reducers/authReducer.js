@@ -5,6 +5,7 @@ import {
     ERROR_CLEAR,
     LOGIN_FAIL,
     LOGIN_SUCCESS,
+    LOGOUT_SUCCESS,
 } from "../types/authTypes";
 import jwt_decode from "jwt-decode";
 
@@ -93,6 +94,17 @@ export const authReducer = (state = authState, action) => {
             return {
                 ...state,
                 error: "",
+            };
+        }
+
+        case LOGOUT_SUCCESS: {
+            return {
+                ...state,
+                loading: true,
+                authenticate: false,
+                error: "",
+                successMessage: "Logged Out successfully!",
+                myInfo: "",
             };
         }
 

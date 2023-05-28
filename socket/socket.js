@@ -25,6 +25,10 @@ const isActiveFriend = (id) => {
     return users.find((users) => users.userId === id);
 };
 
+const userLogout = (id) => {
+    users = users.filter((user) => user.userId !== id);
+};
+
 io.on("connection", (socket) => {
     console.log("Socket is connecting...");
     socket.on("addUser", (userId, userInfo) => {
@@ -66,6 +70,11 @@ io.on("connection", (socket) => {
             receiverId,
             message,
         });
+    });
+
+    socket.on("logout", (userId) => {
+        userLogout(userId);
+        io.emit("getUser", users);
     });
 
     socket.on("disconnect", () => {

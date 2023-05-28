@@ -33,6 +33,8 @@ const Login = () => {
         dispatch(userLogin(userData));
     };
 
+    // Use effect to display React Alerts on Login and Register screen
+
     useEffect(() => {
         if (authenticate) {
             navigate("/");

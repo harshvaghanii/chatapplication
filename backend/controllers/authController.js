@@ -193,3 +193,10 @@ exports.loginController = async (req, res) => {
         }
     }
 };
+
+exports.logoutController = (req, res) => {
+    res.status(200).cookie("authToken", "").json({
+        success: true,
+        message: "You have logged out successfully!",
+    });
+};

@@ -4,6 +4,7 @@ const {
     REGISTER_SUCCESS,
     LOGIN_FAIL,
     LOGIN_SUCCESS,
+    LOGOUT_SUCCESS,
 } = require("../types/authTypes");
 
 export const userRegister = (data) => {
@@ -69,5 +70,19 @@ export const userLogin = (data) => {
                 },
             });
         }
+    };
+};
+
+export const userLogout = () => {
+    return async (dispatch) => {
+        try {
+            const response = await axios.post("/api/messenger/user-logout");
+            if (response.data.success) {
+                localStorage.removeItem("authToken");
+                dispatch({
+                    type: LOGOUT_SUCCESS,
+                });
+            }
+        } catch (error) {}
     };
 };

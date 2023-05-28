@@ -59,7 +59,6 @@ exports.getFriends = async (req, res) => {
                 },
             ];
         }
-        console.log(friend_messages);
         res.status(200).json({ success: true, friends: friend_messages });
     } catch (error) {
         res.status(500).json({
