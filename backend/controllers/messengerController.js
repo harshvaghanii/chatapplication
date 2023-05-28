@@ -49,8 +49,6 @@ exports.getFriends = async (req, res) => {
                 $ne: myId,
             },
         });
-        // const filter = friends.filter((friend) => friend._id != req.myId);
-
         for (let i = 0; i < friends.length; i++) {
             let lastMessage = await getLastMessage(myId, friends[i]._id);
             friend_messages = [

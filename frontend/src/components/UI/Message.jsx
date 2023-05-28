@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { useSelector } from "react-redux";
 import moment from "moment";
+import { FaRegCheckCircle } from "react-icons/fa";
 const Message = ({ messages, currentFriend, scrollRef, userTyping }) => {
     const { myInfo } = useSelector((state) => state.auth);
     return (
@@ -19,7 +20,7 @@ const Message = ({ messages, currentFriend, scrollRef, userTyping }) => {
                 )}
 
                 {messages &&
-                    messages.map((message) => {
+                    messages.map((message, index) => {
                         return message.senderId === myInfo.id ? (
                             <div
                                 className="my-message"
@@ -38,9 +39,29 @@ const Message = ({ messages, currentFriend, scrollRef, userTyping }) => {
                                                 message.message.text
                                             )}
                                         </p>
+                                        {index === messages.length - 1 &&
+                                        message.senderId === myInfo.id ? (
+                                            message.status === "seen" ? (
+                                                <img
+                                                    className="img"
+                                                    src={`./images/${currentFriend.image}`}
+                                                    alt="Display"
+                                                />
+                                            ) : message.status ===
+                                              "delivered" ? (
+                                                <span>
+                                                    <FaRegCheckCircle />
+                                                </span>
+                                            ) : (
+                                                <span>
+                                                    <FaRegCheckCircle />
+                                                </span>
+                                            )
+                                        ) : (
+                                            ""
+                                        )}
                                     </div>
                                 </div>
-                                {/* <div className="time">{message.createdAt}</div> */}
                                 <div className="time">
                                     {moment(message.createdAt)
                                         .startOf("mini")

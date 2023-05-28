@@ -21,19 +21,68 @@ const Friends = (props) => {
 
             <div className="friend-name-seen">
                 <div className="friend-name">
-                    <h4>{username}</h4>
+                    <h4
+                        className={
+                            messageInfo?.senderId !== myInfo.id &&
+                            messageInfo?.status !== undefined &&
+                            messageInfo?.status !== "seen"
+                                ? "unseen_message"
+                                : ""
+                        }
+                    >
+                        {username}
+                    </h4>
+
                     <div className="msg-time">
                         {messageInfo && messageInfo.senderId === myInfo.id ? (
-                            <span>You: </span>
+                            <span
+                                className={
+                                    messageInfo?.senderId !== myInfo.id &&
+                                    messageInfo?.status !== undefined &&
+                                    messageInfo?.status !== "seen"
+                                        ? "unseen_message"
+                                        : ""
+                                }
+                            >
+                                You:{" "}
+                            </span>
                         ) : (
-                            <span>{username + ": "}</span>
+                            <span
+                                className={
+                                    messageInfo?.senderId !== myInfo.id &&
+                                    messageInfo?.status !== undefined &&
+                                    messageInfo?.status !== "seen"
+                                        ? "unseen_message"
+                                        : ""
+                                }
+                            >
+                                {username + ": "}
+                            </span>
                         )}
                         {messageInfo && messageInfo.message.text ? (
-                            <span>
+                            <span
+                                className={
+                                    messageInfo?.senderId !== myInfo.id &&
+                                    messageInfo?.status !== undefined &&
+                                    messageInfo?.status !== "seen"
+                                        ? "unseen_message"
+                                        : ""
+                                }
+                            >
                                 {messageInfo.message.text.slice(0, 10) + "- "}
                             </span>
                         ) : messageInfo && messageInfo.message.image ? (
-                            <span>Sent an image - </span>
+                            <span
+                                className={
+                                    messageInfo?.senderId !== myInfo.id &&
+                                    messageInfo?.status !== undefined &&
+                                    messageInfo?.status !== "seen"
+                                        ? "unseen_message"
+                                        : ""
+                                }
+                            >
+                                Sent an image -{" "}
+                            </span>
                         ) : (
                             <></>
                         )}

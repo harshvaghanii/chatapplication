@@ -18,10 +18,6 @@ app.use(cookieParser());
 app.use("/api/messenger", auth);
 app.use("/api/messenger", messenger);
 
-app.get("/", (req, res) => {
-    res.send("Hello world!");
-});
-
 app.listen(port, () => {
     console.log(`Backend server running successfully at port ${port}!`);
 });

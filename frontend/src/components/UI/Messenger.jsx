@@ -141,9 +141,9 @@ const Messenger = () => {
     // Use effect to render friend list on left side
 
     useEffect(() => {
-        if (!authenticate) {
-            navigate("/messenger/login");
-        }
+        // if (!authenticate) {
+        //     navigate("/messenger/login");
+        // }
         if (authenticate) dispatch(getFriends());
     }, [dispatch, authenticate, navigate]);
 
