@@ -23,6 +23,8 @@ import {
     SEEN_MESSAGE,
     DELIVERED_MESSAGE,
     SEEN_ALL,
+    NEW_USER_ADD,
+    NEW_USER_ADD_CLEAR,
 } from "../../store/types/messengerTypes";
 import toast, { Toaster } from "react-hot-toast";
 import useSound from "use-sound";
@@ -47,6 +49,7 @@ const Messenger = () => {
         messageSendSuccess,
         message_get_success,
         themeMode,
+        new_user_add,
     } = useSelector((state) => state.messenger);
     const [currentFriend, setCurrentFriend] = useState("");
     const friendHandler = (friend) => {
@@ -136,7 +139,7 @@ const Messenger = () => {
 
         for (
             let i = 0;
-            i < getFriendClass.length, i < friendNameClass.length;
+            i < getFriendClass.length && i < friendNameClass.length;
             i++
         ) {
             let text = friendNameClass[i].innerText.toLowerCase();
@@ -176,7 +179,10 @@ const Messenger = () => {
 
     useEffect(() => {
         if (authenticate) dispatch(getFriends());
-    }, [dispatch, authenticate, navigate]);
+        dispatch({
+            type: NEW_USER_ADD_CLEAR,
+        });
+    }, [dispatch, authenticate, navigate, new_user_add]);
 
     // Use effect to auto select the first friend from the left side
 
@@ -316,7 +322,15 @@ const Messenger = () => {
             );
             setActiveUsers(filteredUsers);
         });
-    }, [myInfo, activeUsers]);
+        socket.current.on("new_user_add", (data) => {
+            dispatch({
+                type: NEW_USER_ADD,
+                payload: {
+                    new_user_add: data,
+                },
+            });
+        });
+    }, [myInfo, activeUsers, dispatch]);
 
     // Use effect to display React Toast Notifications
 

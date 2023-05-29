@@ -34,6 +34,12 @@ io.on("connection", (socket) => {
     socket.on("addUser", (userId, userInfo) => {
         addUser(userId, socket.id, userInfo);
         io.emit("getUser", users);
+
+        const us = users.filter((user) => user.userId !== userId);
+        const updateFriends = "new_user_add";
+        for (let i = 0; i < us.length; i++) {
+            socket.to(us[i].socketId).emit("new_user_add", updateFriends);
+        }
     });
 
     socket.on("sendMessage", (data) => {

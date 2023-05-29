@@ -1,4 +1,8 @@
-import { MESSAGE_GET_SUCCESS_CLEAR, UPDATE } from "../types/authTypes";
+import {
+    LOGOUT_SUCCESS,
+    MESSAGE_GET_SUCCESS_CLEAR,
+    UPDATE,
+} from "../types/authTypes";
 import {
     FRIEND_GET_SUCCESS,
     GET_MESSAGE_SUCCESS,
@@ -11,6 +15,8 @@ import {
     SEEN_ALL,
     GET_THEME_SUCCESS,
     SET_THEME_SUCCESS,
+    NEW_USER_ADD,
+    NEW_USER_ADD_CLEAR,
 } from "../types/messengerTypes";
 
 const messengerState = {
@@ -19,6 +25,7 @@ const messengerState = {
     messageSendSuccess: false,
     message_get_success: false,
     themeMode: "",
+    new_user_add: "",
 };
 
 export const messengerReducer = (state = messengerState, action) => {
@@ -136,6 +143,31 @@ export const messengerReducer = (state = messengerState, action) => {
             return {
                 ...state,
                 themeMode: payload.theme,
+            };
+        }
+
+        case LOGOUT_SUCCESS: {
+            return {
+                ...state,
+                loading: true,
+                authenticate: false,
+                error: "",
+                successMessage: "Logged Out successfully!",
+                myInfo: "",
+            };
+        }
+
+        case NEW_USER_ADD: {
+            return {
+                ...state,
+                new_user_add: payload.new_user_add,
+            };
+        }
+
+        case NEW_USER_ADD_CLEAR: {
+            return {
+                ...state,
+                new_user_add: "",
             };
         }
 
