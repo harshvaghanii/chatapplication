@@ -154,6 +154,7 @@ const Messenger = () => {
     // Function to handle logout functionality
 
     const logoutHandler = (e) => {
+        localStorage.removeItem("theme");
         dispatch(userLogout());
         socket.current.emit("logout", myInfo.id);
     };
@@ -184,14 +185,6 @@ const Messenger = () => {
         });
     }, [dispatch, authenticate, navigate, new_user_add]);
 
-    // Use effect to auto select the first friend from the left side
-
-    useEffect(() => {
-        if (friends && friends.length > 0) {
-            setCurrentFriend(friends[0].friendInfo);
-        }
-    }, [friends]);
-
     // Use effect to fetch the messages of the logged in User
 
     useEffect(() => {
@@ -213,7 +206,7 @@ const Messenger = () => {
                         id: currentFriend._id,
                     },
                 });
-                socket.current.emit("seen", {
+                socket.current?.emit("seen", {
                     senderId: currentFriend._id,
                     receiverId: myInfo.id,
                 });
